@@ -12,22 +12,59 @@ using Panel = Autodesk.Revit.DB.Panel;
 
 /*
  * Implementation:
- * - For doors that are tagged, update tag location if it has changed
- * - Update tag rotation if it has changed
- 
+ * - Select multiple views
+ * - If view is viewSheet, apply to all plan views on the viewSheet
+ * - Stacked wall functionality
+ * - Fine-tune hinged door placement
  * - Adjust tags for non-hinge doors to align with edge of door at scales smaller than 1-50
  * - Warning if no door tag loaded
- * - Fine tune tag placement to avoid swing clashes
  * - Select door tag type
- * - Stacked wall functionality
- * - Adjust tag location for barn doors
- * - Section view integration
+ * - Section/elevation view integration
 
  */
 
 namespace HoloBlok.Common.Utils.RevitElements.Tags
 {
-    internal class DoorTagPositionCalculator
+    //Data structures
+
+    public struct TagPositionResult
+    {
+        public XYZ Position { get; set; }
+        public XYZ HingePoint { get; set; }
+        public string SwingType { get; set; }
+        public int SwingAngle { get; set; }
+    }
+
+    public struct DoorData
+    {
+        public Transform Transform { get; set; }
+        public double TotalDoorWidth { get; set; }
+        public double DoorPanelWidth { get; set; }
+        public double DoorThickness { get; set; }
+        public double FrameDepth { get; set; }
+        public double HostWallWidth { get; set; }
+        public double PivotOffset { get; set; }
+        public string SwingType { get; set; }
+        public int SwingAngle { get; set; }
+        public bool IsMirrored { get; set; }
+        public bool HasFixedFrame { get; set; }
+        public XYZ DoorLocation { get; set; }
+        public string DoorFamilyName { get; set; }
+    }
+
+    public struct TagData
+    {
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
+    public struct GeometricVectors
+    {
+        public XYZ XVector { get; set; }
+        public XYZ YVector { get; set; }
+    }
+
+    internal static class DoorTagPositionCalculator
     {
         //Constants
         private const double BUFFER_MM = 40;
@@ -42,48 +79,10 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         private const string DOUBLE_DOOR_INDICATOR = "Double";
         private const string UNEQUAL_DOOR_INDICATOR = "Unequal";
 
-        //Data structures
-        public struct TagPositionResult
-        {
-            public XYZ Position { get; set; }
-            public XYZ HingePoint { get; set; }
-            public string SwingType { get; set; }
-            public int SwingAngle { get; set; }
-        }
-        
-        public struct DoorData
-        {
-            public Transform Transform { get; set; }
-            public double TotalDoorWidth { get; set; }
-            public double DoorPanelWidth { get; set; }
-            public double DoorThickness { get; set; }
-            public double FrameDepth { get; set; }
-            public double HostWallWidth { get; set; }
-            public double PivotOffset { get; set; }
-            public string SwingType { get; set; }
-            public int SwingAngle { get; set; }
-            public bool IsMirrored { get; set; }
-            public bool HasFixedFrame { get; set; }
-            public XYZ DoorLocation { get; set; }
-            public string DoorFamilyName { get; set; }
-        }
-
-        public struct TagData
-        {
-            public double Width { get; set; }
-            public double Height { get; set; }
-        }
-
-        public struct GeometricVectors
-        {
-            public XYZ XVector { get; set; }
-            public XYZ YVector { get; set; }
-        }
-
         /// <summary>
         /// Calculates the optimal position for placing a door tag in a Revit view
         /// </summary>
-        public TagPositionResult CalculateTagPositionWithSwingData(Document doc, View view, FamilyInstance door, XYZ panelLocation, ElementId tagTypeId)
+        public static TagPositionResult CalculateTagPositionWithSwingData(Document doc, View view, FamilyInstance door, XYZ panelLocation, ElementId tagTypeId)
         {
             var doorData = ExtractDoorData(door, doc);
             var tagData = ExtractTagData(doc.GetElement(tagTypeId) as FamilySymbol, view.Scale);
@@ -106,7 +105,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
             };
         }
 
-        private DoorData ExtractDoorData(FamilyInstance door, Document doc)
+        private static DoorData ExtractDoorData(FamilyInstance door, Document doc)
         {
             FamilySymbol doorSymbol = door.Symbol;
             Wall hostWall = door.Host as Wall;
@@ -136,7 +135,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
             };
         }
 
-        private XYZ GetDoorLocation(Document doc, string hostWallFamily, FamilyInstance door)
+        private static XYZ GetDoorLocation(Document doc, string hostWallFamily, FamilyInstance door)
         {
             if (hostWallFamily == CURTAIN_WALL_FAMILY)
             {
@@ -240,7 +239,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
             return totalXyz / lineEndXYZList.Count;
         }
 
-        private XYZ GetBoundingBoxCentroid(BoundingBoxXYZ bbox)
+        private static XYZ GetBoundingBoxCentroid(BoundingBoxXYZ bbox)
         {
             return bbox != null
                 ? (bbox.Min + bbox.Max) / 2
@@ -255,7 +254,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="door"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private double GetDoorPanelWidth(string hostWallFamily, FamilySymbol doorSymbol, FamilyInstance door)
+        private static double GetDoorPanelWidth(string hostWallFamily, FamilySymbol doorSymbol, FamilyInstance door)
         {
             if (hostWallFamily == CURTAIN_WALL_FAMILY)
             {
@@ -270,7 +269,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="doorSymbol"></param>
         /// <param name="door"></param>
         /// <returns></returns>
-        private double AdjustedCurtainPanelWidth(FamilySymbol doorSymbol, FamilyInstance door)
+        private static double AdjustedCurtainPanelWidth(FamilySymbol doorSymbol, FamilyInstance door)
         {
             double panelWidth = door.GetParameterAsDouble("Width");
             double frameThickness = doorSymbol.GetParameterAsDouble("Door Frame Insert Dim");
@@ -300,7 +299,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <summary>
         /// Extracts tag dimensions scaled to view
         /// </summary>
-        private TagData ExtractTagData(FamilySymbol tagSymbol, int viewScale)
+        private static TagData ExtractTagData(FamilySymbol tagSymbol, int viewScale)
         {
             return new TagData
             {
@@ -313,7 +312,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// Calculates tag position based on door swing type
         /// </summary>
 
-        private XYZ CalculatePositionBySwingType(DoorData doorData, TagData tagData, GeometricVectors vectors, XYZ hingePoint, View view)
+        private static XYZ CalculatePositionBySwingType(DoorData doorData, TagData tagData, GeometricVectors vectors, XYZ hingePoint, View view)
         {
 
             return doorData.SwingType == HINGED_SWING || doorData.SwingType == PIVOT_SWING
@@ -328,7 +327,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="vectors"></param>
         /// <param name="panelLocation"></param>
         /// <returns></returns>
-        private XYZ CalculateHingePoint(DoorData doorData, GeometricVectors vectors, XYZ panelLocation)
+        private static XYZ CalculateHingePoint(DoorData doorData, GeometricVectors vectors, XYZ panelLocation)
         {
             XYZ xTransform = vectors.XVector.Multiply((doorData.DoorPanelWidth / 2) - doorData.PivotOffset);
             XYZ yTransform = vectors.YVector.Multiply(doorData.DoorThickness / 2);
@@ -347,11 +346,13 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="hingePoint"></param>
         /// <returns></returns>
         /// <param name="view"></param>
-        private XYZ CalculateHingedDoorTagPosition(DoorData doorData, TagData tagData, GeometricVectors vectors, XYZ hingePoint, View view)
+        private static XYZ CalculateHingedDoorTagPosition(DoorData doorData, TagData tagData, GeometricVectors vectors, XYZ hingePoint, View view)
         {
             double dynamicBuffer = view.Scale < 50 
                 ? BUFFER_MM * (view.Scale / 50.0) 
                 : BUFFER_MM;
+            if (doorData.SwingAngle == 180)
+                dynamicBuffer *= 1.5;
             double buffer = UnitUtils.ConvertToInternalUnits(dynamicBuffer, UnitTypeId.Millimeters);
             double doorThicknessOffset = doorData.SwingType == PIVOT_SWING ? doorData.DoorThickness / 2 : doorData.DoorThickness;
 
@@ -374,7 +375,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="doorData"></param>
         /// <param name="tagData"></param>
         /// <returns></returns>
-        private double CalculateYValueForHingedDoor(DoorData doorData, TagData tagData)
+        private static double CalculateYValueForHingedDoor(DoorData doorData, TagData tagData)
         {
             double yValue = (tagData.Width) / 2 - doorData.PivotOffset;
 
@@ -401,7 +402,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="vectors"></param>
         /// <returns></returns>
         /// <param name="view"></param>
-        private XYZ CalculateNonHingeDoorTagPosition(DoorData doorData, TagData tagData, GeometricVectors vectors, View view)
+        private static XYZ CalculateNonHingeDoorTagPosition(DoorData doorData, TagData tagData, GeometricVectors vectors, View view)
         {
             double tagHeightAdjustment = 0;
 
@@ -428,7 +429,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="doorSymbol"></param>
         /// <param name="door"></param>
         /// <returns></returns>
-        private double GetDoorWidth(string hostWallFamily, FamilySymbol doorSymbol, FamilyInstance door)
+        private static double GetDoorWidth(string hostWallFamily, FamilySymbol doorSymbol, FamilyInstance door)
         {
             return hostWallFamily == CURTAIN_WALL_FAMILY
                 ? door.GetParameterAsDouble("Width")
@@ -441,7 +442,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="doorSymbol"></param>
         /// <param name="hostWallFamily"></param>
         /// <returns></returns>
-        private double GetFrameDepth(FamilySymbol doorSymbol, string hostWallFamily)
+        private static double GetFrameDepth(FamilySymbol doorSymbol, string hostWallFamily)
         {
             var frameParameterName = hostWallFamily == CURTAIN_WALL_FAMILY
                 ? "Frame Depth"
@@ -456,7 +457,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="hostWallType"></param>
         /// <param name="hostWallFamily"></param>
         /// <returns></returns>
-        private double GetHostWallWidth(WallType hostWallType, string hostWallFamily)
+        private static double GetHostWallWidth(WallType hostWallType, string hostWallFamily)
         {
             return hostWallFamily == BASIC_WALL_FAMILY
                 ? hostWallType.GetParameterAsDouble("Width")
@@ -471,7 +472,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="hostWallType"></param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        private bool HasFixedFrame(string hostWallFamily, FamilySymbol doorSymbol)
+        private static bool HasFixedFrame(string hostWallFamily, FamilySymbol doorSymbol)
         {
             if (hostWallFamily == CURTAIN_WALL_FAMILY)
             {
@@ -488,7 +489,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// <param name="doc"></param>
         /// <param name="planSwingId"></param>
         /// <returns></returns>
-        private string GetPlanSwingString(Document doc, ElementId planSwingId)
+        private static string GetPlanSwingString(Document doc, ElementId planSwingId)
         {
             if (planSwingId == null)
                 return null;
@@ -502,7 +503,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// </summary>
         /// <param name="plansSwingString"></param>
         /// <returns></returns>
-        private (string swingType, int swingAngle) ParseSwingType(string plansSwingString)
+        private static (string swingType, int swingAngle) ParseSwingType(string plansSwingString)
         {
             if (string.IsNullOrEmpty(plansSwingString))
                 return (null, 0);
@@ -522,7 +523,7 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
         /// </summary>
         /// <param name="angleString"></param>
         /// <returns></returns>
-        private int ParseSwingAngle(string angleString)
+        private static int ParseSwingAngle(string angleString)
         {
             return int.TryParse(angleString, out int angle) ? angle : 0; ;
         }
