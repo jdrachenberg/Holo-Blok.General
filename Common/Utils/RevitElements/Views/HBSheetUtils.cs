@@ -23,5 +23,17 @@ namespace HoloBlok.Utils.RevitElements.Sheets
                                        v.ViewType == ViewType.Section ||
                                        v.ViewType == ViewType.Elevation));
         }
+
+        internal static IEnumerable<View> GetPlanViewsOnSheet(Document doc, ViewSheet viewSheet)
+        {
+            var viewports = new FilteredElementCollector(doc)
+                .OfClass(typeof(Viewport))
+                .Cast<Viewport>()
+                .Where(vp => vp.SheetId == viewSheet.Id)
+                .ToList();
+
+            return viewports.Select(vp => doc.GetElement(vp.ViewId) as View)
+                           .Where(v => v != null && v.ViewType == ViewType.FloorPlan);
+        }
     }
 }

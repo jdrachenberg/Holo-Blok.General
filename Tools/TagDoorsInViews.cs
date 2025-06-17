@@ -5,6 +5,7 @@ using Autodesk.Revit.DB;
 using Autodesk.Revit.DB.Architecture;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using HoloBlok.Common.Utils.RevitElements.Doors;
 using HoloBlok.Common.Utils.RevitElements.Elements;
 using HoloBlok.Common.Utils.RevitElements.Tags;
 using HoloBlok.Utils;
@@ -45,15 +46,12 @@ namespace HoloBlok
             //Get current view
             View currentView = doc.ActiveView;
 
-            //Get tag dimensions
-
-
             //Start transaction
             using (Transaction t = new Transaction(doc))
             {
-                t.Start("Tag and update doors");
+                t.Start("Tag doors in view");
 
-                TagAllDoorsInView(doc, currentView);
+                DoorTagger.TagAllDoorsInView(doc, currentView);
 
                 t.Commit();
             }
