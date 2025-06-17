@@ -45,9 +45,6 @@ namespace HoloBlok
             //Get current view
             View currentView = doc.ActiveView;
 
-            //Get tag dimensions
-
-
             //Start transaction
             using (Transaction t = new Transaction(doc))
             {
