@@ -8,6 +8,7 @@ using Autodesk.Revit.UI.Selection;
 using HoloBlok.Common.Utils.RevitElements.Doors;
 using HoloBlok.Common.Utils.RevitElements.Elements;
 using HoloBlok.Common.Utils.RevitElements.Tags;
+using HoloBlok.Forms;
 using HoloBlok.Utils;
 using HoloBlok.Utils.Families;
 using HoloBlok.Utils.Geometry;
@@ -24,6 +25,8 @@ using Transform = Autodesk.Revit.DB.Transform;
 #endregion
 
 /* FEATURES:
+ *  Loading bar
+ *  Only tag doors that are cut by the view range cut plane
  *  Dialog box if no door tag is loaded
  *  Choose door tag type
  *  
@@ -32,7 +35,7 @@ using Transform = Autodesk.Revit.DB.Transform;
 namespace HoloBlok
 {
     [Transaction(TransactionMode.Manual)]
-    public class TagDoors : IExternalCommand
+    public class TagDoorsInViews : IExternalCommand
     {
 
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -44,14 +47,41 @@ namespace HoloBlok
             Document doc = uiapp.ActiveUIDocument.Document;
 
             //Get current view
-            View currentView = doc.ActiveView;
+            ViewSelectionWindow viewSelectionWindow = new ViewSelectionWindow(doc);
+            bool? dialogResult = viewSelectionWindow.ShowDialog();
+
+            if (dialogResult != true || viewSelectionWindow.SelectedViews == null || !viewSelectionWindow.SelectedViews.Any())
+                return Result.Cancelled;
+
+            List<View> selectedViews = viewSelectionWindow.SelectedViews;
 
             //Start transaction
             using (Transaction t = new Transaction(doc))
             {
-                t.Start("Tag doors in view");
+                t.Start("Tag doors in multiple views");
 
-                DoorTagger.TagAllDoorsInView(doc, currentView);
+                int totalTagged = 0;
+                List<string> errorMessages = new List<string>();
+
+                foreach (View view in selectedViews)
+                {
+                    try
+                    {
+                        var result = DoorTagger.TagAllDoorsInView(doc, view);
+                        if (result.Success)
+                        {
+                            totalTagged += result.TaggedCount;
+                        }
+                        else
+                        {
+                            errorMessages.Add($"{view.Name}: {result.ErrorMessage}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        errorMessages.Add($"{view.Name}: {ex.Message}");
+                    }
+                }
 
                 t.Commit();
             }

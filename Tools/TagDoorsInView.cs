@@ -25,6 +25,7 @@ using Transform = Autodesk.Revit.DB.Transform;
 #endregion
 
 /* FEATURES:
+ *  Progress bar
  *  If tag location is outside of cropbox, do not tag
  *  Dialog box if no door tag is loaded
  *  Choose door tag type
