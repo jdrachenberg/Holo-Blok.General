@@ -6,11 +6,11 @@
         mc:Ignorable="d"
         Title="Select Views to Tag Doors" 
         Height="500" 
-        Width="400"
+        Width="850"
         WindowStartupLocation="CenterScreen"
         ResizeMode="CanResize"
-        MinHeight="300"
-        MinWidth="300"
+        MinHeight="400"
+        MinWidth="600"
         FontFamily="Segoe UI">
 
     <Window.Resources>
@@ -54,7 +54,7 @@
                             <!-- Checked state -->
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="CheckBoxBorder" Property="Background" Value="{StaticResource BrandColorBlue}"/>
-                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{StaticResource BrandColorBlue}"/>
+                                <Setter TargetName="CheckBoxBorder" Property="BorderThickness" Value="0"/>
                             </Trigger>
 
                             <!-- Hover state -->
@@ -69,7 +69,7 @@
                                     <Condition Property="IsMouseOver" Value="True"/>
                                 </MultiTrigger.Conditions>
                                 <Setter TargetName="CheckBoxBorder" Property="Background" Value="{StaticResource BrandColorHover}"/>
-                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{StaticResource BrandColorHover}"/>
+                                <Setter TargetName="CheckBoxBorder" Property="BorderThickness" Value="0"/>
                             </MultiTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -89,7 +89,6 @@
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-
             <Setter Property="Padding" Value="15,8"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -150,6 +149,17 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Small Button Style -->
+        <Style x:Key="SmallButtonPrimary" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="0,0"/>
+        </Style>
+        <Style x:Key="SmallButtonSecondary" TargetType="Button" BasedOn="{StaticResource SecondaryButton}">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Padding" Value="0,0"/>
+        </Style>
+
     </Window.Resources>
 
     <Grid Margin="20">
@@ -157,87 +167,211 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Header -->
         <TextBlock Grid.Row="0" 
-                   Text="Select Views To Tag Doors" 
+                   Text="Select Views to Tag Doors" 
                    FontFamily="Segoe UI"
                    FontWeight="Bold"
                    FontSize="18" 
                    Foreground="#1A1A1A"
                    Margin="0,0,0,15"/>
 
-        <!-- View List -->
-        <Border Grid.Row="1" 
-        BorderBrush="#E0E0E0" 
-        BorderThickness="1"
-        CornerRadius="6"
-        Margin="0,0,0,15"
-        Background="#FAFAFA">
-            <!-- Remove the ScrollViewer wrapper -->
-            <ListBox x:Name="ViewListBox" 
-             SelectionMode="Extended"
-             BorderThickness="0"
-             Background="Transparent"
-             Padding="10"
-             ScrollViewer.VerticalScrollBarVisibility="Auto">
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Template">
-                            <Setter.Value>
-                                <ControlTemplate TargetType="ListBoxItem">
-                                    <Border x:Name="ItemBorder"
-                                    Background="Transparent"
-                                    Padding="2">
-                                        <ContentPresenter/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ItemBorder" Property="Background" Value="#F5F5F5"/>
-                                        </Trigger>
-                                        <!-- Add selection trigger -->
-                                        <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="ItemBorder" Property="Background" Value="#E3F2FD"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <!-- Enable proper selection behavior -->
-                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
-                          Content="{Binding ViewName}"
-                          Style="{StaticResource CustomCheckBox}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-        </Border>
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-        <!-- Select/Deselect All -->
-        <StackPanel Grid.Row="2" 
-                    Orientation="Horizontal" 
-                    Margin="0,0,0,20">
-            <Button x:Name="SelectAllButton" 
-                    Content="Select All" 
-                    Style="{StaticResource SecondaryButton}"
-                    Width="100" 
-                    Margin="0,0,10,0"
-                    Click="SelectAllButton_Click"/>
-            <Button x:Name="DeselectAllButton" 
-                    Content="Deselect All" 
-                    Style="{StaticResource SecondaryButton}"
-                    Width="100"
-                    Click="DeselectAllButton_Click"/>
-        </StackPanel>
+            <!-- Filter Panel -->
+            <Border Grid.Column="0" 
+                    BorderBrush="#E0E0E0" 
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Background="#FAFAFA"
+                    Padding="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Text="Filter Views By:" 
+                               FontWeight="SemiBold"
+                               FontSize="14"
+                               Margin="0,0,0,10"/>
+
+                    <ComboBox Grid.Row="1"
+                              x:Name="FilterTypeComboBox"
+                              Margin="0,0,0,15"
+                              SelectionChanged="FilterTypeComboBox_SelectionChanged">
+                        <ComboBoxItem Content="All Views" IsSelected="True"/>
+                        <ComboBoxItem Content="View Templates"/>
+                        <ComboBoxItem Content="Sheets"/>
+                    </ComboBox>
+
+                    <!-- Filter List -->
+                    <StackPanel Grid.Row="2" 
+                                x:Name="FilterButtonsPanel" 
+                                Orientation="Horizontal" 
+                                Margin="0,0,0,10">
+                        <Button x:Name="SelectAllFiltersButton" 
+                                Content="Select All" 
+                                Style="{StaticResource SmallButtonPrimary}"
+                                Width="80" 
+                                Margin="0,0,5,0"
+                                Click="SelectAllFiltersButton_Click"/>
+                        <Button x:Name="DeselectAllFiltersButton" 
+                                Content="Select None" 
+                                Style="{StaticResource SmallButtonSecondary}"
+                                Width="80"
+                                Click="DeselectAllFiltersButton_Click"/>
+                    </StackPanel>
+                    
+                    <Border Grid.Row="3"
+                            BorderBrush="#E0E0E0" 
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Background="White">
+                        <ListBox x:Name="FilterListBox" 
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="5"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="ItemBorder"
+                                                        Background="Transparent"
+                                                        Padding="2">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ItemBorder" Property="Background" Value="#F5F5F5"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                              Content="{Binding DisplayName}"
+                                              Style="{StaticResource CustomCheckBox}"
+                                              Checked="FilterItem_CheckChanged"
+                                              Unchecked="FilterItem_CheckChanged"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- Views Panel -->
+            <Border Grid.Column="2" 
+                    BorderBrush="#E0E0E0" 
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Background="#FAFAFA"
+                    Padding="15">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" 
+                                Orientation="Horizontal" 
+                                Margin="0,0,0,10">
+                        <TextBlock Text="Views" 
+                                   FontWeight="SemiBold"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,5,0"/>
+                        <TextBlock x:Name="ViewCountLabel" 
+                                   Text="(0 selected)"
+                                   FontSize="12"
+                                   Foreground="#666666"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" 
+                                Orientation="Horizontal" 
+                                Margin="0,0,0,10">
+                        <Button x:Name="SelectAllViewsButton" 
+                                Content="Select All" 
+                                Style="{StaticResource SmallButtonPrimary}"
+                                Width="80" 
+                                Margin="0,0,5,0"
+                                Click="SelectAllViewsButton_Click"/>
+                        <Button x:Name="DeselectAllViewsButton" 
+                                Content="Select None" 
+                                Style="{StaticResource SmallButtonSecondary}"
+                                Width="80"
+                                Click="DeselectAllViewsButton_Click"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="2"
+                            BorderBrush="#E0E0E0" 
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Background="White">
+                        <ListBox x:Name="ViewListBox" 
+                                 SelectionMode="Multiple"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="5"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="ItemBorder"
+                                                        Background="Transparent"
+                                                        Padding="2">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="ItemBorder" Property="Background" Value="#F5F5F5"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" 
+                                              Content="{Binding ViewName}"
+                                              Style="{StaticResource CustomCheckBox}"
+                                              Checked="ViewItem_CheckChanged"
+                                              Unchecked="ViewItem_CheckChanged"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
 
         <!-- OK/Cancel Buttons -->
-        <StackPanel Grid.Row="3" 
+        <StackPanel Grid.Row="2" 
                     Orientation="Horizontal" 
                     HorizontalAlignment="Right">
             <Button x:Name="OkButton" 

@@ -36,26 +36,33 @@ namespace HoloBlok
         {
             try
             {
-                app.CreateRibbonTab("Holo-Blok");
+                app.CreateRibbonTab("BIM Automation");
             }
             catch (Exception)
             {
                 Debug.Print("Tab already exists.");
             }
 
-            RibbonPanel panel = HBRibbonUtils.CreateRibbonPanel(app, "Holo-Blok", "Documentation");
+            RibbonPanel doorPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Doors");
+            RibbonPanel dimensionPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Dimensions");
+            RibbonPanel detailComponentPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Detail Components");
 
-            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag Doors in Active View", "Tag Doors", TagDoorsInView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag all doors in view");
-            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag Doors in Multiple Views", "Tag Doors in Multiple Views", TagDoorsInViews.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag all doors in multiple views");
-            ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber Doors", "Renumber Doors", RenumberDoors.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Renumbers all doors according to Holo-Blok standard");
-            ButtonDataClass dimensionGridsData = new ButtonDataClass("Dimension Grids", "Dimension Grids", DimensionGrids.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension all grids in view");
-            ButtonDataClass BreaklinesInViewData = new ButtonDataClass("Breaklines (View)", "Breaklines (View)", BreaklinesByView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
+            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in Active View", "Tag in Active View", TagDoorsInView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in active view");
+            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in Multiple Views", "Tag in Multiple Views", TagDoorsInViews.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in multiple views");
+            ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Renumbers all doors");
+            ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in Active View", "Grids in Active View", DimensionGrids.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension grids in active view");
+            ButtonDataClass BreaklinesInViewData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
 
-            PushButton tagDoors = panel.AddItem(tagDoorsData.Data) as PushButton;
-            PushButton tagDoorsMultipleViews = panel.AddItem(tagDoorsMultipleViewsData.Data) as PushButton;
-            PushButton renumberDoors = panel.AddItem(renumberDoorsData.Data) as PushButton;
-            PushButton dimensionGrids = panel.AddItem(dimensionGridsData.Data) as PushButton;
-            PushButton breaklines = panel.AddItem(BreaklinesInViewData.Data) as PushButton;
+            SplitButtonData splitButtonData = new SplitButtonData("Tag Doors", "Tag all doors aligned");
+            SplitButton tagDoorsSplitButton = doorPanel.AddItem(splitButtonData) as SplitButton;
+
+            tagDoorsSplitButton.AddPushButton(tagDoorsData.Data);
+            tagDoorsSplitButton.AddPushButton(tagDoorsMultipleViewsData.Data);
+
+            PushButton renumberDoors = doorPanel.AddItem(renumberDoorsData.Data) as PushButton;
+
+            PushButton dimensionGrids = dimensionPanel.AddItem(dimensionGridsData.Data) as PushButton;
+            PushButton breaklines = detailComponentPanel.AddItem(BreaklinesInViewData.Data) as PushButton;
 
             return Result.Succeeded;
         }
