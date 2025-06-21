@@ -14,13 +14,200 @@
         MinWidth="600"
         FontFamily="Segoe UI">
 
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
+    
+    <!--Styles-->
+    <Window.Resources>
+        <!--Background border-->
+        <Style x:Key="BackgroundBorder" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Background" Value="#FAFAFA"/>
+            <Setter Property="Padding" Value="15"/>
+        </Style>
+        
+        <!--Checklist border-->
+        <Style x:Key="ChecklistBorder" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Background" Value="White" />
+        </Style>
+        
+        <!--Subtitle-->
+        <Style x:Key="Subtitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        
+    </Window.Resources>
+    
+    <!--Main grid-->
+    <Grid Margin="20">
+        
         <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
+
+        <!--Header-->
+        <TextBlock Grid.Row="0"
+                   Text="Select View to Tag Doors"
+                   FontFamily="Segoe UI"
+                   FontWeight="Bold"
+                   FontSize="18"
+                   Foreground="#1A1A1A"
+                   Margin="0,0,0,15"/>
+
+        <!--Main content area-->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!--Filter panel-->
+            <Border Grid.Column="0"
+                    Margin="0,0,10,0"
+                    Style="{StaticResource BackgroundBorder}">
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!--Filter heading-->
+                    <TextBlock Grid.Row="0"
+                        Style="{StaticResource Subtitle}"
+                        Text="Filter Views By:"
+                        Margin="0,0,0,10"/>
+
+                    <!--Filter dropdown-->
+                    <ComboBox Grid.Row="1"
+                              x:Name="FilterTypeComboBox"
+                              Margin="0,0,0,15"
+                              SelectionChanged="FilterTypeComboBox_SelectionChanged">
+                        <ComboBoxItem Content="All Views" IsSelected="True"/>
+                        <ComboBoxItem Content="ViewTemplates"/>
+                        <ComboBoxItem Content="Sheets"/>
+                    </ComboBox>
+                    
+                    
+                    <!--Select All / Select None buttons-->
+                    <StackPanel Grid.Row="2"
+                                x:Name="FilterButtonsPanel"
+                                Orientation="Horizontal"
+                                Margin="0,0,0,10">
+                        <Button x:Name="SelectAllFiltersButton"
+                                Content="Select All"
+                                Width="80"
+                                Margin="0,0,5,0"/>
+                        <Button x:Name="SelectNoneFiltersButton"
+                                Content="Select None"
+                                Width="80"/>
+                    </StackPanel>
+
+                    <!--ListBox of CheckBoxes-->
+                    <Border Grid.Row="3" Style="{StaticResource ChecklistBorder}">
+                        <ListBox x:Name="FilterListBox"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="5"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <!--SelectionMode??-->
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              Content="{Binding DisplayName}"
+                                              Checked="FilterItem_CheckChanged"
+                                              Unchecked="FilterItem_CheckChanged"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!--View panel-->
+            <Border Grid.Column="2"
+                Style="{StaticResource BackgroundBorder}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!--Views text-->
+                    <StackPanel Grid.Row="0"
+                            Orientation="Horizontal"
+                            Margin="0,0,0,10">
+                        <TextBlock Text="Views"
+                               Style="{StaticResource Subtitle}"
+                               FontWeight="SemiBold"
+                               FontSize="14"
+                               VerticalAlignment="Center"
+                               Margin="0,0,5,0"/>
+                        <TextBlock x:Name="ViewCountLabel"
+                               Text="(0 selected)"
+                               FontSize="12"
+                               Foreground="#666666"
+                               VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!--Selection buttons-->
+                    <StackPanel Grid.Row="1"
+                                Orientation="Horizontal"
+                                Margin="0,0,0,10">
+                        <Button Name="SelectAllViewsButton"
+                                Content="Select All"
+                                Width="80"
+                                Margin="0,0,5,0"/>
+                        <Button Name="SelectNoneViewsButton"
+                                Content="Select None"
+                                Width="80"
+                                Margin="0,0,5,0"/>
+                    </StackPanel>
+                    
+                    <!--Views checklist-->
+                    <Border Grid.Row="2"
+                            Style="{StaticResource ChecklistBorder}">
+                        <ListBox x:Name="ViewListBox"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 Padding="5"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                              Content="{Binding ViewName}"
+                                              Checked="ViewItem_CheckChanged"
+                                              Unchecked="ViewItem_CheckChanged"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+        
+        <!--OK/Cancel Buttons-->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button x:Name="OkButton"
+                            Content="OK"
+                            Width="85"
+                            Margin="0,0,10,0"
+                            IsDefault="True"/>
+            <Button x:Name="CancelButton"
+                    Content="Cancel"
+                    Width="85"
+                    IsCancel="True"/>
+        </StackPanel>
     </Grid>
 </Window>
