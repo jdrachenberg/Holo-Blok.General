@@ -1,0 +1,23 @@
+﻿<Window x:Class="HoloBlok.Forms.ProgressDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Processing..." Height="150" Width="400"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="ToolWindow">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" x:Name="StatusText" Text="Processing..." Margin="0,0,0,10"/>
+        <ProgressBar Grid.Row="1" x:Name="ProgressBar" Height="20" Margin="0,0,0,10"/>
+        <TextBlock Grid.Row="2" x:Name="DetailText" Text="" TextWrapping="Wrap"/>
+        <Button Grid.Row="3" x:Name="CancelButton" Content="Cancel" Width="80" 
+                HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                Click="CancelButton_Click"/>
+    </Grid>
+</Window>
