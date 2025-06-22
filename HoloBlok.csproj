@@ -79,11 +79,15 @@
 </PropertyGroup>
 
 <ItemGroup>
+  <None Remove="Resources\bimautomation_16.png" />
+  <None Remove="Resources\bimautomation_32.png" />
   <None Remove="Resources\holoblok_16.png" />
   <None Remove="Resources\holoblok_32.png" />
 </ItemGroup>
 
 <ItemGroup>
+	<EmbeddedResource Include="Resources\bimautomation_16.png" />
+	<EmbeddedResource Include="Resources\bimautomation_32.png" />
 	<EmbeddedResource Include="Resources\Blue_16.png" />
 	<EmbeddedResource Include="Resources\Blue_32.png" />
 	<EmbeddedResource Include="Resources\Green_16.png" />

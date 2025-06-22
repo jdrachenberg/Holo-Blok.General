@@ -63,6 +63,26 @@ namespace HoloBlok.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        internal static byte[] bimautomation_16 {
+            get {
+                object obj = ResourceManager.GetObject("bimautomation_16", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        internal static byte[] bimautomation_32 {
+            get {
+                object obj = ResourceManager.GetObject("bimautomation_32", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         internal static byte[] Blue_16 {
             get {
                 object obj = ResourceManager.GetObject("Blue_16", resourceCulture);

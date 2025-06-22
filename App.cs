@@ -47,9 +47,9 @@ namespace HoloBlok
             RibbonPanel dimensionPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Dimensions");
             RibbonPanel detailComponentPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Detail Components");
 
-            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in Active View", "Tag in Active View", TagDoorsInView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in active view");
-            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in Multiple Views", "Tag in Multiple Views", TagDoorsInViews.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in multiple views");
-            ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Renumbers all doors");
+            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in Active View", "Tag in Active View", TagDoorsInView.GetMethod(), Properties.Resources.bimautomation_32, Properties.Resources.bimautomation_16, "Tag doors in active view");
+            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in Multiple Views", "Tag in Multiple Views", TagDoorsInViews.GetMethod(), Properties.Resources.bimautomation_32, Properties.Resources.bimautomation_16, "Tag doors in multiple views");
+            ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(), Properties.Resources.bimautomation_32, Properties.Resources.bimautomation_16, "Renumbers all doors");
             ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in Active View", "Grids in Active View", DimensionGrids.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension grids in active view");
             ButtonDataClass BreaklinesInViewData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
 
