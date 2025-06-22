@@ -381,7 +381,8 @@ namespace HoloBlok.Common.Utils.RevitElements.Tags
 
             if (tagData.Width > doorData.DoorPanelWidth * TAG_WIDTH_RATIO)
             {
-                double yAdjustment = doorData.DoorPanelWidth - tagData.Width;
+                double yAdjustment = (-1 * (doorData.DoorPanelWidth - tagData.Width)) + (doorData.DoorPanelWidth * 0.15);
+                //double yAdjustment = doorData.DoorPanelWidth - tagData.Width;
                 if (yAdjustment < 0)
                     yAdjustment = Math.Abs(yAdjustment) * 2;
                 

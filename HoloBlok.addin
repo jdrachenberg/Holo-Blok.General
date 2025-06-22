@@ -3,7 +3,7 @@
 	<AddIn Type="Command">
 		<Text>Tag Doors</Text>
 		<Description>Some description for Holo-Blok</Description>
-		<Assembly>HoloBlok.dll</Assembly>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.TagDoorsInView</FullClassName>
 		<ClientId>D3801267-81A8-4B34-A002-427CEADBEBF5</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>
@@ -12,7 +12,7 @@
 	<AddIn Type="Command">
 		<Text>Tag Doors in Multiple Views</Text>
 		<Description>Some description for Holo-Blok</Description>
-		<Assembly>HoloBlok.dll</Assembly>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.TagDoorsInViews</FullClassName>
 		<ClientId>9FC49F4F-5B76-41C4-BF92-CD8C65D6FA7E</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>
@@ -21,7 +21,7 @@
 	<AddIn Type="Command">
 		<Text>Renumber Doors</Text>
 		<Description>Some description for Holo-Blok</Description>
-		<Assembly>HoloBlok.dll</Assembly>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.RenumberDoors</FullClassName>
 		<ClientId>9ee88863-2b1b-4647-80e8-150cf61a47de</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>
@@ -30,7 +30,7 @@
 	<AddIn Type="Command">
 		<Text>Dimension Grids</Text>
 		<Description>Some description for Holo-Blok</Description>
-		<Assembly>HoloBlok.dll</Assembly>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.DimensionGrids</FullClassName>
 		<ClientId>f490c800-6472-4e36-a795-7a0c24179638</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>
@@ -39,7 +39,7 @@
 	<AddIn Type="Command">
 		<Text>Breaklines by View</Text>
 		<Description>Some description for Holo-Blok</Description>
-		<Assembly>HoloBlok.dll</Assembly>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.BreaklinesByView</FullClassName>
 		<ClientId>D5A0CE8F-2C83-4D15-A82B-31D1E6A1BC60</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>
@@ -48,7 +48,7 @@
 	
 	<AddIn Type="Application">
 		<Name>Holo-Blok</Name>
-		<Assembly>HoloBlok.dll</Assembly>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.App</FullClassName>
 		<ClientId>d7f60298-b385-420f-bd1c-65927f365ba9</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>

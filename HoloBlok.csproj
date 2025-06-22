@@ -106,9 +106,9 @@
 echo *** Configuration: $(Configuration)
 echo *** Copying results to $(RevitVersion)
 echo *** $(MSBuildProjectDirectory)
-if not exist "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)\Holo_Blok" mkdir "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)\Holo_Blok"
+if not exist "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)\HoloBlok" mkdir "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)\HoloBlok"
 copy "$(MSBuildProjectDirectory)\*.addin" "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)"
-copy "$(TargetDir)*.dll" "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)\Holo_Blok"
+copy "$(TargetDir)*.dll" "$(AppData)\Autodesk\REVIT\Addins\$(RevitVersion)\HoloBlok"
 	</PostBuildEvent>
 	<RunAnalyzersDuringBuild>False</RunAnalyzersDuringBuild>
 	<RunAnalyzersDuringLiveAnalysis>False</RunAnalyzersDuringLiveAnalysis>

@@ -89,7 +89,7 @@
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="15,8"/>
+            <Setter Property="Padding" Value="15,0"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -121,7 +121,7 @@
             <Setter Property="Foreground" Value="{StaticResource BrandColorGrey}"/>
             <Setter Property="FontFamily" Value="Segoe UI"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="BorderBrush" Value="{StaticResource BrandColorBlue}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -377,7 +377,8 @@
             <Button x:Name="OkButton" 
                     Content="OK" 
                     Style="{StaticResource PrimaryButton}"
-                    Width="85" 
+                    Width="85"
+                    Height="30"
                     Margin="0,0,10,0"
                     Click="OkButton_Click"
                     IsDefault="True"/>
@@ -385,6 +386,7 @@
                     Content="Cancel" 
                     Style="{StaticResource SecondaryButton}"
                     Width="85"
+                    Height="30"
                     Click="CancelButton_Click"
                     IsCancel="True"/>
         </StackPanel>
