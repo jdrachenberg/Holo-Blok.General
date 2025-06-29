@@ -28,6 +28,15 @@
 		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
 	</AddIn>
 	<AddIn Type="Command">
+		<Text>Place light fixtures</Text>
+		<Description>Some description for Holo-Blok</Description>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
+		<FullClassName>HoloBlok.PlaceLightFixtures</FullClassName>
+		<ClientId>B6A801A3-B634-470D-8987-FC1054241C07</ClientId>
+		<VendorId>com.YOUR COMPANY NAME</VendorId>
+		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
+	</AddIn>
+	<AddIn Type="Command">
 		<Text>Dimension Grids</Text>
 		<Description>Some description for Holo-Blok</Description>
 		<Assembly>HoloBlok\HoloBlok.dll</Assembly>

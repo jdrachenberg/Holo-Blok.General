@@ -36,33 +36,59 @@ namespace HoloBlok
         {
             try
             {
-                app.CreateRibbonTab("BIM Automation");
+                app.CreateRibbonTab("holo-blok");
             }
             catch (Exception)
             {
                 Debug.Print("Tab already exists.");
             }
 
-            RibbonPanel doorPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Doors");
-            RibbonPanel dimensionPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Dimensions");
-            RibbonPanel detailComponentPanel = HBRibbonUtils.CreateRibbonPanel(app, "BIM Automation", "Detail Components");
+            RibbonPanel doorPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Doors");
+            RibbonPanel electricalPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Electrical");
+            RibbonPanel dimensionPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Dimensions");
+            RibbonPanel detailComponentPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Detail Components");
 
-            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in Active View", "Tag in Active View", TagDoorsInView.GetMethod(), Properties.Resources.bimautomation_32, Properties.Resources.bimautomation_16, "Tag doors in active view");
-            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in Multiple Views", "Tag in Multiple Views", TagDoorsInViews.GetMethod(), Properties.Resources.bimautomation_32, Properties.Resources.bimautomation_16, "Tag doors in multiple views");
-            ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(), Properties.Resources.bimautomation_32, Properties.Resources.bimautomation_16, "Renumbers all doors");
-            ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in Active View", "Grids in Active View", DimensionGrids.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension grids in active view");
-            ButtonDataClass BreaklinesInViewData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(), Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
+            #region ButtonDataClasses
 
+            // Doors
+            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in Active View", "Tag in Active View", TagDoorsInView.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in active view");
+            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in Multiple Views", "Tag in Multiple Views", TagDoorsInViews.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in multiple views");
+            ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Renumbers all doors");
+            
+            // Dimension grids
+            ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in Active View", "Grids in Active View", DimensionGrids.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension grids in active view");
+            
+            // Detail components
+            ButtonDataClass BreaklinesInViewData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
+            
+            // Electrical
+            ButtonDataClass PlaceLightFixturesData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
+
+            #endregion
+
+            #region SplitButtons
             SplitButtonData splitButtonData = new SplitButtonData("Tag Doors", "Tag all doors aligned");
             SplitButton tagDoorsSplitButton = doorPanel.AddItem(splitButtonData) as SplitButton;
 
             tagDoorsSplitButton.AddPushButton(tagDoorsData.Data);
             tagDoorsSplitButton.AddPushButton(tagDoorsMultipleViewsData.Data);
 
-            PushButton renumberDoors = doorPanel.AddItem(renumberDoorsData.Data) as PushButton;
+            #endregion
 
+            #region PushButtons
+            PushButton renumberDoors = doorPanel.AddItem(renumberDoorsData.Data) as PushButton;
             PushButton dimensionGrids = dimensionPanel.AddItem(dimensionGridsData.Data) as PushButton;
             PushButton breaklines = detailComponentPanel.AddItem(BreaklinesInViewData.Data) as PushButton;
+            PushButton lightFixtures = electricalPanel.AddItem(PlaceLightFixturesData.Data) as PushButton;
+
+
+            #endregion
 
             return Result.Succeeded;
         }
