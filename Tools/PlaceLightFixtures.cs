@@ -19,10 +19,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Media;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using static HoloBlok.ProgressManager;
-using Line = Autodesk.Revit.DB.Line;
 using Creation = Autodesk.Revit.Creation;
+using Line = Autodesk.Revit.DB.Line;
 using Transform = Autodesk.Revit.DB.Transform;
 
 #endregion
@@ -323,24 +324,25 @@ namespace HoloBlok
             _defaultHeight = defaultHeight;
         }
 
-        public double CalculateFixtureHeight(XYZ location, LinkedRoomData room)
+        public Face GetLowestHostFace(XYZ location, LinkedRoomData room)
         {
-            // Get fixture geometry extents
             var fixtureExtents = GetFixtureExtents(_fixtureType);
-
-            // Test multiple points (center and edges of fixture)
             var testPoints = GenerateTestPoints(location, fixtureExtents);
 
             double lowestIntersection = double.MaxValue; //TO-DO: VERIFY THAT TEST POINTS ARE CORRECT
+            Face lowestFace = null;
 
             foreach (var testPoint in testPoints)
             {
-                var height = GetIntersectionHeight(testPoint, room);
-                if (height < lowestIntersection)
+                var (face, height) = GetHostFaceAndHeight(testPoint, room);
+                if (face != null && height < lowestIntersection)
+                {
                     lowestIntersection = height;
+                    lowestFace = face;
+                }
             }
 
-            return lowestIntersection == double.MaxValue ? _defaultHeight : lowestIntersection;
+            return lowestFace;
         }
 
         private BoundingBoxXYZ GetFixtureExtents(FamilySymbol fixtureType)
@@ -375,51 +377,76 @@ namespace HoloBlok
             return points;
         }
 
-        private double GetIntersectionHeight(XYZ point, LinkedRoomData roomData)
+        private (Face face, double height) GetHostFaceAndHeight(XYZ point, LinkedRoomData roomData)
         {
             // Create vertical ray
             var rayOrigin = new XYZ(point.X, point.Y, roomData.Room.Level.ProjectElevation);
             var rayDirection = XYZ.BasisZ;
 
-            double lowestIntersection = double.MaxValue;
-
             // TO-DO: allow user to select reference 3D view to use
             View3D view3D = new FilteredElementCollector(_hostDoc)
                 .OfClass(typeof(View3D))
                 .FirstOrDefault(v => !(v as View3D).IsTemplate) as View3D;
+            if (view3D == null)
+                throw new InvalidOperationException("No non-template 3D views found.");
 
-            // Check intersections in linked models
-            foreach (var link in _linkedModels)
+            var refIntersector = new ReferenceIntersector(
+                GetStructuralElementFilter(),
+                FindReferenceTarget.Element,
+                view3D);
+
+            refIntersector.FindReferencesInRevitLinks = true;
+
+            ReferenceWithContext nearestRef = refIntersector.FindNearest(rayOrigin, rayDirection);
+
+            Face lowestFace = null;
+            double lowestZ = double.MaxValue;
+            
+            if (nearestRef != null)
             {
-                Document linkDoc = link.GetLinkDocument();
-                if (linkDoc == null) continue;
+                Reference reference = nearestRef.GetReference();
 
-                var transform = link.GetTotalTransform();
-                var inverseTransform = transform.Inverse;
+                RevitLinkInstance linkInstance = _hostDoc.GetElement(reference.ElementId) as RevitLinkInstance;
+                if (linkInstance == null) return (lowestFace, lowestZ);
 
-                // Transform ray to link coordinates
-                var linkRayOrigin = inverseTransform.OfPoint(rayOrigin);               
+                Document linkedDoc = linkInstance.GetLinkDocument();
+                Element linkedElement = linkedDoc.GetElement(reference.LinkedElementId);
+                if (linkedElement == null) return (lowestFace, lowestZ);
 
-                // Use ReferenceIntersector
-                var refIntersector = new ReferenceIntersector(
-                    GetStructuralElementFilter(),
-                    FindReferenceTarget.Element,
-                    view3D);
+                Options geomOptions = new Options { ComputeReferences = true };
+                GeometryElement geomElement = linkedElement.get_Geometry(geomOptions);
+                Transform linkTransform = linkInstance.GetTransform();
 
-                refIntersector.FindReferencesInRevitLinks = true;
-
-                // Use FindNearest to get only the closest intersection
-                ReferenceWithContext nearestRef = refIntersector.FindNearest(linkRayOrigin, rayDirection);
-
-                if (nearestRef != null)
+                foreach (GeometryObject geomObj in geomElement)
                 {
-                    var intersection = nearestRef.GetReference().GlobalPoint;
-                    if (intersection.Z < lowestIntersection)
-                        lowestIntersection = intersection.Z;
+                    Solid solid = geomObj as Solid;
+                    if (solid == null || solid.Faces.IsEmpty) continue;
+
+                    foreach (Face face in solid.Faces)
+                    {
+                        IntersectionResult result = face.Project(rayOrigin);
+                        if (result != null)
+                        {
+                            XYZ intersection = linkTransform.OfPoint(result.XYZPoint);
+
+                            // Check that the intersection is in the direction of the ray (i.e. above ray origin)
+                            XYZ vectorFromOrigin = intersection - rayOrigin;
+                            if (vectorFromOrigin.DotProduct(rayDirection) > 0)
+                            {
+                                // Check if its the lowest so far
+                                if (intersection.Z < lowestZ)
+                                {
+                                    lowestZ = intersection.Z;
+                                    lowestFace = face;
+                                }
+                            }
+                            
+                        }
+                    }
                 }
             }
 
-            return lowestIntersection;
+            return (lowestFace, lowestZ);
         }
 
         private ElementFilter GetStructuralElementFilter()
@@ -500,16 +527,16 @@ namespace HoloBlok
                     continue;
                 }
 
-                // Calculate height
-                var height = _heightCalculator.CalculateFixtureHeight(location, roomData);
-                var placementPoint = new XYZ(location.X, location.Y, height);
+                // Get host element
+                Face hostFace = _heightCalculator.GetLowestHostFace(location, roomData);
+                var placementPoint = new XYZ(location.X, location.Y, location.Z);
 
                 // Create placement data for batch operation
                 var creationData = new Creation.FamilyInstanceCreationData(
+                    hostFace,
                     placementPoint,
-                    _fixtureType,
-                    level,
-                    StructuralType.NonStructural);
+                    XYZ.BasisX,
+                    _fixtureType);
 
                 placementData.Add(creationData);
             }
