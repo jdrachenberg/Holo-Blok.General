@@ -29,14 +29,14 @@ using Transform = Autodesk.Revit.DB.Transform;
 
 namespace HoloBlok
 {
-    [Transaction(TransactionMode.Manual)]
+    
     public static class PlacementConstants
     {
         public const double WALL_OFFSET_FEET = 2.0;
         public const double DEFAULT_HEIGHT_FEET = 6.0;
         public const int BATCH_SIZE = 10;
     }
-    
+    [Transaction(TransactionMode.Manual)]
     public class PlaceLightFixtures : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
@@ -69,7 +69,7 @@ namespace HoloBlok
                 List<LinkedRoomData> selectedRooms = roomSelector.SelectRooms(); // TO-DO: Create options for selecting rooms
 
                 // 3. Get light fixture family type - ENTER CORRECT FIXTURE NAMES
-                var fixtureType = GetLightFixtureType(doc, "familyName", "typeName");
+                var fixtureType = GetLightFixtureType(doc, "Ceiling Light - Flat Round", "60W - 230V");
                 if (fixtureType == null)
                 {
                     TaskDialog.Show("Error", "No light fixture family type found.");
@@ -77,7 +77,7 @@ namespace HoloBlok
                 }
 
                 // 4. Get spacing configuration
-                var spacingConfig = new GridSpacingConfiguration(8.0, 8.0); // 8 feet default
+                var spacingConfig = new GridSpacingConfiguration(4.0, 2.0); // 8 feet default
 
 
                 // 5. Process rooms in batches
@@ -331,7 +331,7 @@ namespace HoloBlok
             // Test multiple points (center and edges of fixture)
             var testPoints = GenerateTestPoints(location, fixtureExtents);
 
-            double lowestIntersection = double.MaxValue;
+            double lowestIntersection = double.MaxValue; //TO-DO: VERIFY THAT TEST POINTS ARE CORRECT
 
             foreach (var testPoint in testPoints)
             {
@@ -383,6 +383,11 @@ namespace HoloBlok
 
             double lowestIntersection = double.MaxValue;
 
+            // TO-DO: allow user to select reference 3D view to use
+            View3D view3D = new FilteredElementCollector(_hostDoc)
+                .OfClass(typeof(View3D))
+                .FirstOrDefault(v => !(v as View3D).IsTemplate) as View3D;
+
             // Check intersections in linked models
             foreach (var link in _linkedModels)
             {
@@ -393,13 +398,7 @@ namespace HoloBlok
                 var inverseTransform = transform.Inverse;
 
                 // Transform ray to link coordinates
-                var linkRayOrigin = inverseTransform.OfPoint(rayOrigin);
-
-
-                // TO-DO: allow user to select reference 3D view to use
-                View3D view3D = new FilteredElementCollector(linkDoc)
-                    .OfClass(typeof(View3D))
-                    .FirstOrDefault(v => !(v as View3D).IsTemplate) as View3D;
+                var linkRayOrigin = inverseTransform.OfPoint(rayOrigin);               
 
                 // Use ReferenceIntersector
                 var refIntersector = new ReferenceIntersector(
@@ -410,7 +409,7 @@ namespace HoloBlok
                 refIntersector.FindReferencesInRevitLinks = true;
 
                 // Use FindNearest to get only the closest intersection
-                var nearestRef = refIntersector.FindNearest(linkRayOrigin, rayDirection);
+                ReferenceWithContext nearestRef = refIntersector.FindNearest(linkRayOrigin, rayDirection);
 
                 if (nearestRef != null)
                 {

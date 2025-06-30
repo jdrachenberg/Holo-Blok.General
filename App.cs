@@ -67,8 +67,8 @@ namespace HoloBlok
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
             
             // Electrical
-            ButtonDataClass PlaceLightFixturesData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(),
-                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
+            ButtonDataClass PlaceLightFixturesData = new ButtonDataClass("Place Light Fixtures", "Place Light Fixtures", PlaceLightFixtures.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place light fixtures at correct elevations");
 
             #endregion
 
