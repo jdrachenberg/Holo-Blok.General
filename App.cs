@@ -1,9 +1,9 @@
 using HoloBlok.Common;
-using HoloBlok;
 using System.Windows.Media.Imaging;
 using System.IO;
 using System.Drawing;
 using System.Diagnostics;
+using HoloBlok.Tools.LightFixtures;
 
 namespace HoloBlok
 {
