@@ -22,9 +22,10 @@ using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using static HoloBlok.Tools.Electrical.LightFixtures.ProgressManager;
+using static HoloBlok.Tools.Electrical.LightFixtures.Helpers.ProgressManager;
 using Creation = Autodesk.Revit.Creation;
 using Line = Autodesk.Revit.DB.Line;
+using HoloBlok.Tools.Electrical.LightFixtures.Helpers;
 
 #endregion
 

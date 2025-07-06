@@ -1,6 +1,6 @@
 using HoloBlok.Utils.RevitElements.FamilySymbols;
 
-namespace HoloBlok.Tools.Electrical.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 {
     public class LightFixturePlacementEngine
     {

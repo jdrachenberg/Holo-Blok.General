@@ -28,7 +28,7 @@
 		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
 	</AddIn>
 	<AddIn Type="Command">
-		<Text>Place light fixtures</Text>
+		<Text>Place Light Fixtures</Text>
 		<Description>Some description for Holo-Blok</Description>
 		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.PlaceLightFixtures</FullClassName>
@@ -37,16 +37,25 @@
 		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
 	</AddIn>
 	<AddIn Type="Command">
-		<Text>Extract mech data</Text>
+		<Text>Extract Mech Data</Text>
 		<Description>Some description for Holo-Blok</Description>
 		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
-		<FullClassName>HoloBlok.ExtractMechData</FullClassName>
+		<FullClassName>HoloBlok.ExportMechData</FullClassName>
 		<ClientId>17DB7E89-9045-4026-976D-D0BD96B84CB2</ClientId>
 		<VendorId>com.YOUR COMPANY NAME</VendorId>
 		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
 	</AddIn>
 	<AddIn Type="Command">
-		<Text>Place families beside mechanical equipment</Text>
+		<Text>Import Elec Data</Text>
+		<Description>Some description for Holo-Blok</Description>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
+		<FullClassName>HoloBlok.ImportElecData</FullClassName>
+		<ClientId>55968557-A843-43D5-8D35-2B3ACED58850</ClientId>
+		<VendorId>com.YOUR COMPANY NAME</VendorId>
+		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
+	</AddIn>
+	<AddIn Type="Command">
+		<Text>Place Families Beside Mech Equipment</Text>
 		<Description>Some description for Holo-Blok</Description>
 		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
 		<FullClassName>HoloBlok.FamilyAtLinkedInstance</FullClassName>

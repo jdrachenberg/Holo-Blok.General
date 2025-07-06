@@ -3,7 +3,7 @@ using Autodesk.Revit.DB.Architecture;
 
 #endregion
 
-namespace HoloBlok.Tools.Electrical.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 {
     public class LinkedRoomSelector
     {

@@ -1,7 +1,7 @@
 #region Namespaces
 #endregion
 
-namespace HoloBlok.Tools.Electrical.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 {
     public interface ISpacingStrategy
     {

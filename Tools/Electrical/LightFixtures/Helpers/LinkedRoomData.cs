@@ -4,7 +4,7 @@ using Transform = Autodesk.Revit.DB.Transform;
 
 #endregion
 
-namespace HoloBlok.Tools.Electrical.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 {
     public class LinkedRoomData
     {

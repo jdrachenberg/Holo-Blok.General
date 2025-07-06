@@ -1,7 +1,9 @@
 #region Namespaces
 #endregion
 
-namespace HoloBlok.Tools.Electrical.LightFixtures
+using NPOI.SS.Formula.Functions;
+
+namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 {
     public class GridSpacingConfiguration : ISpacingStrategy
     {
@@ -21,25 +23,37 @@ namespace HoloBlok.Tools.Electrical.LightFixtures
             // Get room boundary in host coordinates
             var boundaryPoints = room.GetBoundaryPointsInHostCoordinates();
 
-            // Find bounding box of room
-            var minX = boundaryPoints.Min(p => p.X);
-            var maxX = boundaryPoints.Max(p => p.X);
-            var minY = boundaryPoints.Min(p => p.Y);
-            var maxY = boundaryPoints.Max(p => p.Y);
+            // Find bounding box of fixture space
+            var minX = boundaryPoints.Min(p => p.X) + wallOffset;
+            var maxX = boundaryPoints.Max(p => p.X) - wallOffset;
+            var minY = boundaryPoints.Min(p => p.Y) + wallOffset;
+            var maxY = boundaryPoints.Max(p => p.Y) - wallOffset;
 
-            // Apply wall offset
-            minX += wallOffset;
-            maxX -= wallOffset;
-            minY += wallOffset;
-            maxY -= wallOffset;
+            double roomWidth = maxX - minX;
+            double roomHeight = maxY - minY;
 
-            // Generate grid points
-            // TO-DO: this method starts at one end of the room and spaces them out until it reaches the closest point to the wall offset on the other side.
-            // Create an alternate method where the points are centered in the middle of the room.
-            for (double x = minX; x <= maxX; x += SpacingX)
+            // Calculate how many spacings fit in the available width/height
+            int countX = (int)Math.Floor(roomWidth / SpacingX) + 1;
+            int countY = (int)Math.Floor(roomWidth / SpacingY) + 1;
+
+            // Calculate total size occupied by grid
+            double gridWidth = (countX - 1) * SpacingX;
+            double gridHeight = (countX - 1) * SpacingY;
+
+            //Calculate starting X and Y to center the grid
+            double startX = minX + (roomWidth - gridWidth) / 2;
+            double startY = minY + (roomHeight - gridHeight) / 2;
+
+
+            // Generate grid points, centered in the room
+            for (int i = 0; i < countX; i++)
             {
-                for (double y = minY; y <= maxY; y += SpacingY)
+                double x = startX + i * SpacingX;
+
+                for (int j = 0; j < countY; j++)
                 {
+                    double y = startY + j * SpacingY;
+
                     var point = new XYZ(x, y, 0); // Z will be determined later by height calculation method
 
                     // Check if point is inside room (simplified for rectangular rooms)

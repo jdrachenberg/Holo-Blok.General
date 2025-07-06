@@ -24,7 +24,7 @@ using HoloBlok.Common.Utils.Excel;
 namespace HoloBlok.Tools.Electrical.DataSync
 {
     [Transaction(TransactionMode.Manual)]
-    public class ExtractMechData : IExternalCommand
+    public class ExportMechData : IExternalCommand
     {
         public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
         {

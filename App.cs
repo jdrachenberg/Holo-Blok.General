@@ -46,6 +46,7 @@ namespace HoloBlok
             }
 
             RibbonPanel doorPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Doors");
+            RibbonPanel excelPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Excel Link");
             RibbonPanel electricalPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Electrical");
             RibbonPanel dimensionPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Dimensions");
             RibbonPanel detailComponentPanel = HBRibbonUtils.CreateRibbonPanel(app, "holo-blok", "Detail Components");
@@ -59,7 +60,19 @@ namespace HoloBlok
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in multiple views");
             ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Renumbers all doors");
-            
+
+            // Excel Link
+            ButtonDataClass exportMechData = new ButtonDataClass("Export\nMech Data", "Export\nMech Data", ExportMechData.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Pull relevant mechanical equipment data from linked model and push to Excel spreadsheet");
+            ButtonDataClass importElecData = new ButtonDataClass("Import\nElec Data", "Import\nElec Data", ImportElecData.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Pull electrical data from Excel spreadsheet");
+
+            // Electrical
+            ButtonDataClass placeLightFixturesData = new ButtonDataClass("Place\nLight Fixtures", "Place\nLight Fixtures", PlaceLightFixtures.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place light fixtures at correct elevations");
+            ButtonDataClass familyAtLinkedInstanceData = new ButtonDataClass("Family at\nLinked Instance", "Family at\nLinked Instance", FamilyAtLinkedInstance.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place family instances relative to linked model elements");
+
             // Dimension grids
             ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in\nActive View", "Grids in\nActive View", DimensionGrids.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension grids in active view");
@@ -67,17 +80,8 @@ namespace HoloBlok
             // Detail components
             ButtonDataClass breaklinesInViewData = new ButtonDataClass("Breaklines in\nActive View", "Breaklines in\nActive View", BreaklinesByView.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
-            
-            // Electrical
-            ButtonDataClass placeLightFixturesData = new ButtonDataClass("Place\nLight Fixtures", "Place\nLight Fixtures", PlaceLightFixtures.GetMethod(),
-                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place light fixtures at correct elevations");
-            ButtonDataClass extractMechData = new ButtonDataClass("Extract\nMech Data", "Extract\nMech Data", ExtractMechData.GetMethod(),
-                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Pull relevant mechanical equipment data from linked model and push to Excel spreadsheet");
-            ButtonDataClass familyAtLinkedInstanceData = new ButtonDataClass("Family at\nLinked Instance", "Family at\nLinked Instance", FamilyAtLinkedInstance.GetMethod(),
-                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place family instances relative to linked model elements");
-
-
             #endregion
+
 
             #region SplitButtons
             SplitButtonData splitButtonData = new SplitButtonData("Tag Doors", "Tag all doors aligned");
@@ -85,16 +89,27 @@ namespace HoloBlok
 
             tagDoorsSplitButton.AddPushButton(tagDoorsData.Data);
             tagDoorsSplitButton.AddPushButton(tagDoorsMultipleViewsData.Data);
-
             #endregion
 
             #region PushButtons
+            //Doors
             PushButton renumberDoors = doorPanel.AddItem(renumberDoorsData.Data) as PushButton;
-            PushButton dimensionGrids = dimensionPanel.AddItem(dimensionGridsData.Data) as PushButton;
-            PushButton breaklines = detailComponentPanel.AddItem(breaklinesInViewData.Data) as PushButton;
-            PushButton lightFixtures = electricalPanel.AddItem(placeLightFixturesData.Data) as PushButton;
-            PushButton extractMech = electricalPanel.AddItem(extractMechData.Data) as PushButton;
+
+            // Excel Link
+            PushButton exportMech = excelPanel.AddItem(exportMechData.Data) as PushButton;
+            PushButton importElec = excelPanel.AddItem(importElecData.Data) as PushButton;
+
+            // Electrical
             PushButton familyAtLinkedInstance = electricalPanel.AddItem(familyAtLinkedInstanceData.Data) as PushButton;
+            PushButton lightFixtures = electricalPanel.AddItem(placeLightFixturesData.Data) as PushButton;
+
+            //Dimensions
+            PushButton dimensionGrids = dimensionPanel.AddItem(dimensionGridsData.Data) as PushButton;
+
+            //Detail Components
+            PushButton breaklines = detailComponentPanel.AddItem(breaklinesInViewData.Data) as PushButton;
+
+
 
 
             #endregion
