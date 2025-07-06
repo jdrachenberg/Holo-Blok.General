@@ -8,7 +8,9 @@ using Autodesk.Revit.UI.Selection;
 using HoloBlok.Common.Utils.RevitElements.Doors;
 using HoloBlok.Common.Utils.RevitElements.Elements;
 using HoloBlok.Common.Utils.RevitElements.Tags;
+using HoloBlok.Common.Enums;
 using HoloBlok.Utils;
+using HoloBlok.Utils.Collectors;
 using HoloBlok.Utils.Families;
 using HoloBlok.Utils.Geometry;
 using HoloBlok.Utils.RevitElements.Sheets;
@@ -20,13 +22,13 @@ using System.Reflection;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
-using static HoloBlok.Tools.LightFixtures.ProgressManager;
+using static HoloBlok.Tools.Electrical.LightFixtures.ProgressManager;
 using Creation = Autodesk.Revit.Creation;
 using Line = Autodesk.Revit.DB.Line;
 
 #endregion
 
-namespace HoloBlok.Tools.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures
 {
     [Transaction(TransactionMode.Manual)]
     public class PlaceLightFixtures : IExternalCommand
@@ -46,8 +48,8 @@ namespace HoloBlok.Tools.LightFixtures
             try
             {
                 // 1. Get linked models (architectural and structural)
-                List<RevitLinkInstance> linkedArchModels = GetArchitecturalLinkedModels(doc);
-                List<RevitLinkInstance> linkedStrucModels = GetStructuralLinkedModels(doc);
+                List<RevitLinkInstance> linkedArchModels = HBCollectors.GetLinkedModelsByDiscipline(doc, LinkType.Arch);
+                List<RevitLinkInstance> linkedStrucModels = HBCollectors.GetLinkedModelsByDiscipline(doc, LinkType.Struc);
                 List<RevitLinkInstance> allLinkedModels = linkedArchModels.Concat(linkedStrucModels).ToList();
 
                 if (!linkedArchModels.Any())
@@ -61,7 +63,7 @@ namespace HoloBlok.Tools.LightFixtures
                 List<LinkedRoomData> selectedRooms = roomSelector.SelectRooms(); // TO-DO: Create options for selecting rooms
 
                 // 3. Get light fixture family type - ENTER CORRECT FIXTURE NAMES
-                var fixtureType = GetLightFixtureType(doc, "Ceiling Light - Flat Round", "60W - 230V");
+                var fixtureType = HBCollectors.GetSymbol(doc, BuiltInCategory.OST_LightingFixtures, "Ceiling Light - Flat Round", "60W - 230V");
                 if (fixtureType == null)
                 {
                     TaskDialog.Show("Error", "No light fixture family type found.");
@@ -102,50 +104,7 @@ namespace HoloBlok.Tools.LightFixtures
                 return Result.Failed;
             }
         }
-
         
-
-        private List<RevitLinkInstance> GetArchitecturalLinkedModels(Document doc)
-        {
-            return new FilteredElementCollector(doc)
-                .OfClass(typeof(RevitLinkInstance))
-                .Cast<RevitLinkInstance>()
-                .Where(link => IsArchitectural(link))
-                .ToList();
-        }
-
-        private bool IsArchitectural(RevitLinkInstance link)
-        {
-            string linkName = link.Name.ToLower();
-            return linkName.Contains("arch") && !linkName.Contains("struc");
-        }
-
-
-        private List<RevitLinkInstance> GetStructuralLinkedModels(Document doc)
-        {
-            return new FilteredElementCollector(doc)
-                .OfClass(typeof(RevitLinkInstance))
-                .Cast<RevitLinkInstance>()
-                .Where(link => IsStructural(link))
-                .ToList();
-        }
-
-        private bool IsStructural(RevitLinkInstance link)
-        {
-            string linkName = link.Name.ToLower();
-            return linkName.Contains("struc") && !linkName.Contains("arch");
-        }
-
-        private FamilySymbol GetLightFixtureType(Document doc, string familyName, string typeName)
-        {
-            // Get first available light fixture type
-            // In future, this could be a user selection dialog
-            return new FilteredElementCollector(doc)
-                .OfClass(typeof(FamilySymbol))
-                .OfCategory(BuiltInCategory.OST_LightingFixtures)
-                .Cast<FamilySymbol>()
-                .FirstOrDefault(fs => fs.FamilyName == familyName && fs.Name == typeName);
-        }
 
         public static string GetMethod()
         {

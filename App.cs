@@ -1,9 +1,11 @@
 using HoloBlok.Common;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Drawing;
+using HoloBlok.Tools.Electrical.DataSync;
+using HoloBlok.Tools.Electrical.FamilyAtLinkedInstance;
+using HoloBlok.Tools.Electrical.LightFixtures;
 using System.Diagnostics;
-using HoloBlok.Tools.LightFixtures;
+using System.Drawing;
+using System.IO;
+using System.Windows.Media.Imaging;
 
 namespace HoloBlok
 {
@@ -51,24 +53,29 @@ namespace HoloBlok
             #region ButtonDataClasses
 
             // Doors
-            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in Active View", "Tag in Active View", TagDoorsInView.GetMethod(),
+            ButtonDataClass tagDoorsData = new ButtonDataClass("Tag in\nActive View", "Tag in\nActive View", TagDoorsInView.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in active view");
-            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in Multiple Views", "Tag in Multiple Views", TagDoorsInViews.GetMethod(),
+            ButtonDataClass tagDoorsMultipleViewsData = new ButtonDataClass("Tag in\nMultiple Views", "Tag in\nMultiple Views", TagDoorsInViews.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Tag doors in multiple views");
             ButtonDataClass renumberDoorsData = new ButtonDataClass("Renumber", "Renumber", RenumberDoors.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Renumbers all doors");
             
             // Dimension grids
-            ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in Active View", "Grids in Active View", DimensionGrids.GetMethod(),
+            ButtonDataClass dimensionGridsData = new ButtonDataClass("Grids in\nActive View", "Grids in\nActive View", DimensionGrids.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Dimension grids in active view");
             
             // Detail components
-            ButtonDataClass BreaklinesInViewData = new ButtonDataClass("Breaklines in Active View", "Breaklines in Active View", BreaklinesByView.GetMethod(),
+            ButtonDataClass breaklinesInViewData = new ButtonDataClass("Breaklines in\nActive View", "Breaklines in\nActive View", BreaklinesByView.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Add breaklines to current view");
             
             // Electrical
-            ButtonDataClass PlaceLightFixturesData = new ButtonDataClass("Place Light Fixtures", "Place Light Fixtures", PlaceLightFixtures.GetMethod(),
+            ButtonDataClass placeLightFixturesData = new ButtonDataClass("Place\nLight Fixtures", "Place\nLight Fixtures", PlaceLightFixtures.GetMethod(),
                 Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place light fixtures at correct elevations");
+            ButtonDataClass extractMechData = new ButtonDataClass("Extract\nMech Data", "Extract\nMech Data", ExtractMechData.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Pull relevant mechanical equipment data from linked model and push to Excel spreadsheet");
+            ButtonDataClass familyAtLinkedInstanceData = new ButtonDataClass("Family at\nLinked Instance", "Family at\nLinked Instance", FamilyAtLinkedInstance.GetMethod(),
+                Properties.Resources.holoblok_32, Properties.Resources.holoblok_16, "Place family instances relative to linked model elements");
+
 
             #endregion
 
@@ -84,8 +91,10 @@ namespace HoloBlok
             #region PushButtons
             PushButton renumberDoors = doorPanel.AddItem(renumberDoorsData.Data) as PushButton;
             PushButton dimensionGrids = dimensionPanel.AddItem(dimensionGridsData.Data) as PushButton;
-            PushButton breaklines = detailComponentPanel.AddItem(BreaklinesInViewData.Data) as PushButton;
-            PushButton lightFixtures = electricalPanel.AddItem(PlaceLightFixturesData.Data) as PushButton;
+            PushButton breaklines = detailComponentPanel.AddItem(breaklinesInViewData.Data) as PushButton;
+            PushButton lightFixtures = electricalPanel.AddItem(placeLightFixturesData.Data) as PushButton;
+            PushButton extractMech = electricalPanel.AddItem(extractMechData.Data) as PushButton;
+            PushButton familyAtLinkedInstance = electricalPanel.AddItem(familyAtLinkedInstanceData.Data) as PushButton;
 
 
             #endregion

@@ -1,7 +1,6 @@
-#region Namespaces
-#endregion
+using HoloBlok.Utils.RevitElements.FamilySymbols;
 
-namespace HoloBlok.Tools.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures
 {
     public class LightFixturePlacementEngine
     {
@@ -17,16 +16,14 @@ namespace HoloBlok.Tools.LightFixtures
             _allLinkedModels = allLinkedModels;
             _fixtureType = fixtureType;
             _heightCalculator = new HeightCalculator(doc, allLinkedModels, fixtureType);
-            _duplicateChecker = new DuplicateChecker(doc);
+            _duplicateChecker = new DuplicateChecker(doc, BuiltInCategory.OST_LightingFixtures);
         }
 
         public PlacementResults PlaceFixturesInRooms(IEnumerable<LinkedRoomData> rooms, ISpacingStrategy spacingStrategy, ProgressManager progressManager)
         {
             var results = new PlacementResults();
 
-            // Ensure family symbol is active
-            if (!_fixtureType.IsActive)
-                _fixtureType.Activate();
+            HBFamilySymbolUtils.ActivateSymbolIfNotActive(_fixtureType);
 
             foreach (var room in rooms)
             {
@@ -45,6 +42,8 @@ namespace HoloBlok.Tools.LightFixtures
 
             return results;
         }
+
+        
 
         private RoomPlacementResult PlaceFixturesInRoom(LinkedRoomData roomData, ISpacingStrategy spacingStrategy)
         {
@@ -71,9 +70,8 @@ namespace HoloBlok.Tools.LightFixtures
                     continue;
                 }
 
-                // Get the link instance and linked face reference
+                // Get the link host reference
                 Reference hostRef = hostFace.Reference.CreateLinkReference(linkInstance);
-                XYZ faceNormal = hostFace.ComputeNormal(UV.Zero).Normalize();
                 try
                 {
                     _doc.Create.NewFamilyInstance(
@@ -83,12 +81,6 @@ namespace HoloBlok.Tools.LightFixtures
                         _fixtureType);
 
                     result.PlacedCount++;
-
-                    //int failedCount = placementData.Count - createdIds.Count;
-                    //if (failedCount > 0)
-                    //{
-                        //result.Errors.Add($"{failedCount} fixtures failed to place in room {roomData.Number}");
-                    //}
                 }
                 catch (Exception ex)
                 {

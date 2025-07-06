@@ -37,6 +37,24 @@
 		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
 	</AddIn>
 	<AddIn Type="Command">
+		<Text>Extract mech data</Text>
+		<Description>Some description for Holo-Blok</Description>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
+		<FullClassName>HoloBlok.ExtractMechData</FullClassName>
+		<ClientId>17DB7E89-9045-4026-976D-D0BD96B84CB2</ClientId>
+		<VendorId>com.YOUR COMPANY NAME</VendorId>
+		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
+	</AddIn>
+	<AddIn Type="Command">
+		<Text>Place families beside mechanical equipment</Text>
+		<Description>Some description for Holo-Blok</Description>
+		<Assembly>HoloBlok\HoloBlok.dll</Assembly>
+		<FullClassName>HoloBlok.FamilyAtLinkedInstance</FullClassName>
+		<ClientId>86E8C95C-B566-405F-9A09-8D3B1384784D</ClientId>
+		<VendorId>com.YOUR COMPANY NAME</VendorId>
+		<VendorDescription>Holo-Blok, www.Holo-Blok.com</VendorDescription>
+	</AddIn>
+	<AddIn Type="Command">
 		<Text>Dimension Grids</Text>
 		<Description>Some description for Holo-Blok</Description>
 		<Assembly>HoloBlok\HoloBlok.dll</Assembly>

@@ -1,10 +1,12 @@
 ﻿using Autodesk.Revit.DB;
 using HoloBlok.Utils.Geometry;
+using HoloBlok.Common.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static HoloBlok.Utils.Collectors.HBCollectorUtils;
 
 namespace HoloBlok.Utils.Collectors
 {
@@ -26,8 +28,6 @@ namespace HoloBlok.Utils.Collectors
 
             return solids;
         }
-
-        
 
     }
 }

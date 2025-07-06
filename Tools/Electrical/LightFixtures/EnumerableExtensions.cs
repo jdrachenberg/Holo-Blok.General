@@ -1,4 +1,8 @@
 #region Namespaces
+
+#endregion
+
+
 public static class EnumerableExtensions
 {
     public static IEnumerable<List<T>> Batch<T>(this IEnumerable<T> source, int batchSize)

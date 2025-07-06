@@ -1,7 +1,7 @@
 #region Namespaces
 #endregion
 
-namespace HoloBlok.Tools.LightFixtures
+namespace HoloBlok.Tools.Electrical.LightFixtures
 {
     internal class DuplicateChecker
     {
@@ -9,16 +9,16 @@ namespace HoloBlok.Tools.LightFixtures
         private readonly List<XYZ> _existingLocations;
         private const double TOLERANCE = 0.1; // feet
 
-        public DuplicateChecker(Document doc)
+        public DuplicateChecker(Document doc, BuiltInCategory builtInCategory)
         {
             _doc = doc;
-            _existingLocations = GetExistingFixtureLocations();
+            _existingLocations = GetExistingLocations(builtInCategory);
         }
 
-        private List<XYZ> GetExistingFixtureLocations()
+        private List<XYZ> GetExistingLocations(BuiltInCategory builtInCategory)
         {
             return new FilteredElementCollector(_doc)
-                .OfCategory(BuiltInCategory.OST_LightingFixtures)
+                .OfCategory(builtInCategory)
                 .WhereElementIsNotElementType()
                 .Cast<FamilyInstance>()
                 .Select(f => (f.Location as LocationPoint)?.Point)

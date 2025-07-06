@@ -1,10 +1,11 @@
-﻿using System;
+﻿using HoloBlok.Common.DataSets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HoloBlok.Common.Utils.Geometry
+namespace HoloBlok.Utils.Geometry
 {
     internal static class XYZExtensions
     {
@@ -12,5 +13,8 @@ namespace HoloBlok.Common.Utils.Geometry
         {
             return new XYZ(Math.Abs(xyz.X), Math.Abs(xyz.Y), Math.Abs(xyz.Z));
         }
+
     }
+
+
 }
