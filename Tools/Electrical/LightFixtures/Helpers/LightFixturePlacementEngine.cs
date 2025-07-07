@@ -1,3 +1,4 @@
+using HoloBlok.Utils.Families;
 using HoloBlok.Utils.RevitElements.FamilySymbols;
 
 namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
@@ -6,16 +7,18 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
     {
         private readonly Document _doc;
         private readonly List<RevitLinkInstance> _allLinkedModels;
-        private readonly FamilySymbol _fixtureType;
+        private readonly IFixtureSelectionStrategy _fixtureSelectionStrategy;
         private readonly HeightCalculator _heightCalculator;
         private readonly DuplicateChecker _duplicateChecker;
 
-        public LightFixturePlacementEngine(Document doc, List<RevitLinkInstance> allLinkedModels, FamilySymbol fixtureType)
+        public LightFixturePlacementEngine(Document doc, List<RevitLinkInstance> allLinkedModels, IFixtureSelectionStrategy fixtureSelectionStrategy)
         {
             _doc = doc;
             _allLinkedModels = allLinkedModels;
-            _fixtureType = fixtureType;
-            _heightCalculator = new HeightCalculator(doc, allLinkedModels, fixtureType);
+            _fixtureSelectionStrategy = fixtureSelectionStrategy;
+
+            var defaultFixture = fixtureSelectionStrategy.GetDefaultFixtureType();
+            _heightCalculator = new HeightCalculator(doc, allLinkedModels, defaultFixture);
             _duplicateChecker = new DuplicateChecker(doc, BuiltInCategory.OST_LightingFixtures);
         }
 
@@ -23,7 +26,7 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
         {
             var results = new PlacementResults();
 
-            HBFamilySymbolUtils.ActivateSymbolIfNotActive(_fixtureType);
+            _fixtureSelectionStrategy.ActivateAllFixtureTypes();
 
             foreach (var room in rooms)
             {
@@ -43,7 +46,6 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
             return results;
         }
 
-        
 
         private RoomPlacementResult PlaceFixturesInRoom(LinkedRoomData roomData, ISpacingStrategy spacingStrategy)
         {
@@ -61,30 +63,57 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
                     continue;
                 }
 
-                // Get host face
-                var (hostFace, linkInstance) = _heightCalculator.GetLowestHostFace(location, roomData);
-                if (hostFace == null)
+                // Get host data
+                var hostData = _heightCalculator.GetLowestHostElementData(location, roomData);
+                if (hostData == null)
                 {
                     result.Errors.Add($"No valid host face found for point {location}");
                     result.SkippedCount++;
                     continue;
                 }
 
+                // Determine which fixture type to use based on the host element
+                FamilySymbol fixtureType = _fixtureSelectionStrategy.SelectFixtureType(
+                    hostData.HostElement,
+                    hostData.LinkedDocument);
+
+                if (fixtureType == null)
+                {
+                    result.Errors.Add($"No fixture type mapping found for host element at {location}");
+                    result.SkippedCount++;
+                    continue;
+                }
+
                 // Get the link host reference
-                Reference hostRef = hostFace.Reference.CreateLinkReference(linkInstance);
+                Reference hostRef = hostData.CreateHostReference();
+                if (hostRef == null)
+                {
+                    result.Errors.Add($"Failed to create host reference at {location}");
+                    result.SkippedCount++;
+                    continue;
+                }
+
                 try
                 {
-                    _doc.Create.NewFamilyInstance(
+                    FamilyInstance newInstance = _doc.Create.NewFamilyInstance(
                         hostRef,
                         location,
                         XYZ.BasisX,
-                        _fixtureType);
+                        fixtureType);
 
                     result.PlacedCount++;
+
+                    HBFamilyInstanceUtils.RotateFamilyInstance(_doc, newInstance, hostData.GridRotation, location, hostData.HostFace);
+
+                    // Track which fixture type was used (optional)
+                    if (!result.FixtureTypesUsed.ContainsKey(fixtureType.Name))
+                        result.FixtureTypesUsed[fixtureType.Name] = 0;
+                    result.FixtureTypesUsed[fixtureType.Name]++;
                 }
                 catch (Exception ex)
                 {
-                    result.Errors.Add($"Batch placement failed: {ex.Message}");
+                    result.Errors.Add($"Failed to place fixture at {location}: {ex.Message}");
+                    result.SkippedCount++;
                 }
             }
 

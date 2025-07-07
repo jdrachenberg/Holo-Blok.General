@@ -34,11 +34,11 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 
             // Calculate how many spacings fit in the available width/height
             int countX = (int)Math.Floor(roomWidth / SpacingX) + 1;
-            int countY = (int)Math.Floor(roomWidth / SpacingY) + 1;
+            int countY = (int)Math.Floor(roomHeight / SpacingY) + 1;
 
             // Calculate total size occupied by grid
             double gridWidth = (countX - 1) * SpacingX;
-            double gridHeight = (countX - 1) * SpacingY;
+            double gridHeight = (countY - 1) * SpacingY;
 
             //Calculate starting X and Y to center the grid
             double startX = minX + (roomWidth - gridWidth) / 2;

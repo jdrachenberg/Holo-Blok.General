@@ -91,7 +91,8 @@ namespace HoloBlok
             if (symbol == null)
                 throw new InvalidOperationException($"Could not find symbol {familyName}, {typeName}.");
 
-            HBFamilySymbolUtils.ActivateSymbolIfNotActive(symbol);
+
+            //HBFamilySymbolUtils.ActivateSymbolIfNotActive(symbol);
 
             return symbol;
         }

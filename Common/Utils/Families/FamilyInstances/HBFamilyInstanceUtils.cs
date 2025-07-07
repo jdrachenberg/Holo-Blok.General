@@ -42,10 +42,18 @@ namespace HoloBlok.Utils.Families
             return famInstance;
         }
 
-        private static Line CreateRotationAxis(XYZ locationPoint, XYZ viewDirection)
+        internal static FamilyInstance RotateFamilyInstance(Document doc, FamilyInstance famInstance, double rotationAngle, XYZ locationPoint, Face face)
+        {
+            Line axis = CreateRotationAxis(locationPoint, face.ComputeNormal(new UV()));
+            ElementTransformUtils.RotateElement(doc, famInstance.Id, axis, rotationAngle);
+
+            return famInstance;
+        }
+
+        private static Line CreateRotationAxis(XYZ locationPoint, XYZ direction)
         {
             XYZ startPt = locationPoint;
-            XYZ endPt = locationPoint + viewDirection;
+            XYZ endPt = locationPoint + direction;
             return Line.CreateBound(startPt, endPt);
         }
 

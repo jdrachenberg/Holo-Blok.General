@@ -1,4 +1,5 @@
 #region Namespaces
+using NPOI.SS.Formula.Functions;
 using Transform = Autodesk.Revit.DB.Transform;
 
 #endregion
@@ -19,28 +20,32 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
             _fixtureType = fixtureType;
             _defaultHeight = defaultHeight;
         }
+        
+        
 
-        public (Face face, RevitLinkInstance linkInstance) GetLowestHostFace(XYZ location, LinkedRoomData room)
+
+        public HostElementData GetLowestHostElementData(XYZ location, LinkedRoomData room)
         {
-            var fixtureExtents = GetFixtureExtents(_fixtureType);
-            var testPoints = GenerateTestPoints(location, fixtureExtents);
-            RevitLinkInstance bestLinkInstance = null;
+            //var fixtureExtents = GetFixtureExtents(_fixtureType);
+            //var testPoints = GenerateTestPoints(location, fixtureExtents);
 
-            double lowestIntersection = double.MaxValue; //TO-DO: VERIFY THAT TEST POINTS ARE CORRECT
-            Face lowestFace = null;
 
-            foreach (var testPoint in testPoints)
-            {
-                var (face, height, linkinstance) = GetHostFaceAndHeight(testPoint, room);
-                if (face != null && height < lowestIntersection)
-                {
-                    lowestIntersection = height;
-                    lowestFace = face;
-                    bestLinkInstance = linkinstance;
-                }
-            }
+            // HostElementData bestLinkInstance = null;
+            // Face lowestFace = null;
+            HostElementData hostData = GetHostElementData(location, room);
 
-            return (lowestFace, bestLinkInstance);
+            //var hostData = GetHostElementData(location, room);
+
+            //foreach (var testPoint in testPoints)
+            //{
+            //    var testData = GetHostElementData(testPoint, room);
+            //    if (hostData != null)
+            //    {
+            //        bestHostData = hostData;
+            //    }
+            //}
+
+            return hostData;
         }
 
         private BoundingBoxXYZ GetFixtureExtents(FamilySymbol fixtureType)
@@ -75,7 +80,7 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
             return points;
         }
 
-        private (Face face, double height, RevitLinkInstance linkInstance) GetHostFaceAndHeight(XYZ point, LinkedRoomData roomData)
+        private HostElementData GetHostElementData(XYZ point, LinkedRoomData roomData)
         {
             // Create vertical ray
             var rayOrigin = new XYZ(point.X, point.Y, roomData.Room.Level.ProjectElevation);
@@ -97,56 +102,67 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
 
             ReferenceWithContext nearestRef = refIntersector.FindNearest(rayOrigin, rayDirection);
 
+            if (nearestRef == null)
+                return null;
+
+            Reference reference = nearestRef.GetReference();
+            RevitLinkInstance linkInstance = _hostDoc.GetElement(reference.ElementId) as RevitLinkInstance;
+            if (linkInstance == null)
+                return null;
+
+            Document linkedDoc = linkInstance.GetLinkDocument();
+            Element linkedElement = linkedDoc.GetElement(reference.LinkedElementId);
+            if (linkedElement == null)
+                return null;
+
+            // Get the specific face and intersection point
+            var (face, intersectionHeight) = GetFaceAndIntersection(linkedElement, rayOrigin, rayDirection, linkInstance.GetTransform());
+
+            if (face == null)
+                return null;
+
+            double gridRotation = GetCeilingGridRotationRadians(linkedDoc, linkedElement);
+
+            return new HostElementData(face, linkedElement, linkInstance, linkedDoc, intersectionHeight, gridRotation);
+        }
+
+        private (Face face, double height) GetFaceAndIntersection(Element linkedElement, XYZ rayOrigin, XYZ rayDirection, Transform linkTransform)
+        {
+            Options geomOptions = new Options { ComputeReferences = true };
+            GeometryElement geomElement = linkedElement.get_Geometry(geomOptions);
+
             Face lowestFace = null;
             double lowestZ = double.MaxValue;
-            RevitLinkInstance matchingLinkInstance = null;
-            
-            if (nearestRef != null)
+
+            foreach (GeometryObject geomObj in geomElement)
             {
-                Reference reference = nearestRef.GetReference();
+                Solid solid = geomObj as Solid;
+                if (solid == null || solid.Faces.IsEmpty)
+                    continue;
 
-                RevitLinkInstance linkInstance = _hostDoc.GetElement(reference.ElementId) as RevitLinkInstance;
-                if (linkInstance == null) return (null, double.MaxValue, null);
-
-                Document linkedDoc = linkInstance.GetLinkDocument();
-                Element linkedElement = linkedDoc.GetElement(reference.LinkedElementId);
-                if (linkedElement == null) return (null, double.MaxValue, null);
-
-                Options geomOptions = new Options { ComputeReferences = true };
-                GeometryElement geomElement = linkedElement.get_Geometry(geomOptions);
-                Transform linkTransform = linkInstance.GetTransform();
-
-                foreach (GeometryObject geomObj in geomElement)
+                foreach (Face face in solid.Faces)
                 {
-                    Solid solid = geomObj as Solid;
-                    if (solid == null || solid.Faces.IsEmpty) continue;
-
-                    foreach (Face face in solid.Faces)
+                    IntersectionResult result = face.Project(rayOrigin);
+                    if (result != null)
                     {
-                        IntersectionResult result = face.Project(rayOrigin);
-                        if (result != null)
-                        {
-                            XYZ intersection = linkTransform.OfPoint(result.XYZPoint);
+                        XYZ intersection = linkTransform.OfPoint(result.XYZPoint);
 
-                            // Check that the intersection is in the direction of the ray (i.e. above ray origin)
-                            XYZ vectorFromOrigin = intersection - rayOrigin;
-                            if (vectorFromOrigin.DotProduct(rayDirection) > 0)
+                        // Check that the intersection is in the direction of the ray (i.e. above ray origin)
+                        XYZ vectorFromOrigin = intersection - rayOrigin;
+                        if (vectorFromOrigin.DotProduct(rayDirection) > 0)
+                        {
+                            // Check if its the lowest so far
+                            if (intersection.Z < lowestZ)
                             {
-                                // Check if its the lowest so far
-                                if (intersection.Z < lowestZ)
-                                {
-                                    lowestZ = intersection.Z;
-                                    lowestFace = face;
-                                    matchingLinkInstance = linkInstance;
-                                }
+                                lowestZ = intersection.Z;
+                                lowestFace = face;
                             }
-                            
                         }
                     }
                 }
             }
 
-            return (lowestFace, lowestZ, matchingLinkInstance);
+            return (lowestFace, lowestZ);
         }
 
         private ElementFilter GetStructuralElementFilter()
@@ -162,5 +178,79 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
             var filters = categories.Select(c => new ElementCategoryFilter(c)).Cast<ElementFilter>().ToList();
             return new LogicalOrFilter(filters);
         }
+
+        public static double GetCeilingGridRotationRadians(Document doc, Element ceilingElement)
+        {
+            CeilingType ceilingType = doc.GetElement(ceilingElement.GetTypeId()) as CeilingType;
+            if (ceilingType == null)
+                return 0;
+
+            // Get compound structure instead of using GetMaterialIds()
+            CompoundStructure compoundStructure = ceilingType.GetCompoundStructure();
+            if (compoundStructure == null)
+                return 0;
+
+            // Get materials from compound structure layers
+            IList<CompoundStructureLayer> layers = compoundStructure.GetLayers();
+            if (layers == null || layers.Count == 0)
+                return 0;
+
+            // Find the first layer with a valid material
+
+            Material material = doc.GetElement(layers.Last().MaterialId) as Material;
+
+            if (material == null)
+                return 0;
+
+            // Get the surface pattern ID
+            ElementId patternId = material.SurfaceForegroundPatternId;
+            if (patternId == ElementId.InvalidElementId)
+                return 0;
+
+            // Get the fill pattern element
+            FillPatternElement patternElement = doc.GetElement(patternId) as FillPatternElement;
+            if (patternElement == null)
+                return 0;
+
+            FillPattern fillPattern = patternElement.GetFillPattern();
+            if (fillPattern.Target != FillPatternTarget.Model)
+                return 0; // Only process model patterns
+
+            // Get fill grids
+            var grids = fillPattern.GetFillGrids();
+            if (grids.Count == 0)
+                return 0;
+
+            // Find the grid with the largest Shift
+            var dominantGrid = grids.OrderByDescending(g => g.Offset).First();
+
+            // Get and normalize the angle
+            double angleInRadians = NormalizeAngle(dominantGrid.Angle);
+
+            // OPTIONAL: Snap to 0 or PI/2 for horizontal/vertical
+            if (IsApproximatelyEqual(angleInRadians, 0) || IsApproximatelyEqual(angleInRadians, Math.PI))
+                return 0;
+            else if (IsApproximatelyEqual(angleInRadians, Math.PI / 2) || IsApproximatelyEqual(angleInRadians, 3 * Math.PI / 2))
+                return Math.PI / 2;
+            else
+                return angleInRadians;
+        }
+
+        // Normalize angle between 0 and 2*PI
+        private static double NormalizeAngle(double angle)
+        {
+            while (angle < 0)
+                angle += 2 * Math.PI;
+            while (angle >= 2 * Math.PI)
+                angle -= 2 * Math.PI;
+            return angle;
+        }
+
+        // Helper to compare doubles with tolerance
+        private static bool IsApproximatelyEqual(double a, double b, double tolerance = 0.01)
+        {
+            return Math.Abs(a - b) < tolerance;
+        }
+
     }
 }

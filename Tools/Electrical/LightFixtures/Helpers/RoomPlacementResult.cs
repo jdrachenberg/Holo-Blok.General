@@ -9,5 +9,6 @@ namespace HoloBlok.Tools.Electrical.LightFixtures.Helpers
         public int PlacedCount { get; set; }
         public int SkippedCount { get; set; }
         public List<string> Errors { get; } = new List<string>();
+        public Dictionary<string, int> FixtureTypesUsed { get; } = new Dictionary<string, int>();
     }
 }
