@@ -39,12 +39,10 @@
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
-        
     </Window.Resources>
     
     <!--Main grid-->
     <Grid Margin="20">
-        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -96,17 +94,18 @@
                         <ComboBoxItem Content="Sheets"/>
                     </ComboBox>
                     
-                    
                     <!--Select All / Select None buttons-->
                     <StackPanel Grid.Row="2"
                                 x:Name="FilterButtonsPanel"
                                 Orientation="Horizontal"
                                 Margin="0,0,0,10">
                         <Button x:Name="SelectAllFiltersButton"
+                                Click="SelectAllFiltersButton_Click"
                                 Content="Select All"
                                 Width="80"
                                 Margin="0,0,5,0"/>
                         <Button x:Name="SelectNoneFiltersButton"
+                                Click="SelectNoneFiltersButton_Click"
                                 Content="Select None"
                                 Width="80"/>
                     </StackPanel>
@@ -163,11 +162,13 @@
                     <StackPanel Grid.Row="1"
                                 Orientation="Horizontal"
                                 Margin="0,0,0,10">
-                        <Button Name="SelectAllViewsButton"
+                        <Button x:Name="SelectAllViewsButton"
+                                Click="SelectAllViewsButton_Click"
                                 Content="Select All"
                                 Width="80"
                                 Margin="0,0,5,0"/>
-                        <Button Name="SelectNoneViewsButton"
+                        <Button x:Name="SelectNoneViewsButton"
+                                Click="SelectNoneViewsButton_Click"
                                 Content="Select None"
                                 Width="80"
                                 Margin="0,0,5,0"/>
@@ -180,13 +181,13 @@
                                  BorderThickness="0"
                                  Background="Transparent"
                                  Padding="5"
-                                 ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 SelectionMode="Extended"
+                                 SelectionChanged="ViewListBox_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                              Content="{Binding ViewName}"
-                                              Checked="ViewItem_CheckChanged"
-                                              Unchecked="ViewItem_CheckChanged"/>
+                                              Content="{Binding ViewName}"/>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
                         </ListBox>
@@ -200,11 +201,13 @@
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
             <Button x:Name="OkButton"
-                            Content="OK"
-                            Width="85"
-                            Margin="0,0,10,0"
-                            IsDefault="True"/>
+                    Click="OkButton_Click"        
+                    Content="OK"
+                    Width="85"
+                    Margin="0,0,10,0"
+                    IsDefault="True"/>
             <Button x:Name="CancelButton"
+                    Click="CancelButton_Click"
                     Content="Cancel"
                     Width="85"
                     IsCancel="True"/>
